@@ -1633,3 +1633,20 @@ Binding(ALT+COMMAND+R,
 		,,true),null),
 	org.eclipse.ui.defaultAcceleratorConfiguration,
 	org.eclipse.ui.contexts.window,,cocoa,system)
+
+!ENTRY org.eclipse.egit.core 4 0 2015-04-15 12:26:40.886
+!MESSAGE An exception occurred during push on URI https://github.com/rwondoloski/MySQLTest: https://github.com/rwondoloski/MySQLTest: not authorized
+!STACK 0
+org.eclipse.jgit.api.errors.TransportException: https://github.com/rwondoloski/MySQLTest: not authorized
+	at org.eclipse.jgit.api.PushCommand.call(PushCommand.java:160)
+	at org.eclipse.egit.core.op.PushOperation.run(PushOperation.java:228)
+	at org.eclipse.egit.ui.internal.push.PushOperationUI.execute(PushOperationUI.java:167)
+	at org.eclipse.egit.ui.internal.push.PushOperationUI$1.run(PushOperationUI.java:229)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:54)
+Caused by: org.eclipse.jgit.errors.TransportException: https://github.com/rwondoloski/MySQLTest: not authorized
+	at org.eclipse.jgit.transport.TransportHttp.connect(TransportHttp.java:501)
+	at org.eclipse.jgit.transport.TransportHttp.openPush(TransportHttp.java:399)
+	at org.eclipse.jgit.transport.PushProcess.execute(PushProcess.java:154)
+	at org.eclipse.jgit.transport.Transport.push(Transport.java:1173)
+	at org.eclipse.jgit.api.PushCommand.call(PushCommand.java:156)
+	... 4 more
