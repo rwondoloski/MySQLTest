@@ -1,23 +1,30 @@
 -- VERSION_4
 -- START DISKCACHE
 /Users/robert/GitHub/MySQLTest/.metadata/.plugins/org.eclipse.core.resources/.projects/MySQLTestProject/com.python.pydev.analysis/v2_indexcache
-AddEmployee|1429118427000|/Users/robert/GitHub/MySQLTest/MySQLTestProject/src/AddEmployee.py
+AddEmployee|1429119537000|/Users/robert/GitHub/MySQLTest/MySQLTestProject/src/AddEmployee.py
+battleship|1429129095000|/Users/robert/GitHub/MySQLTest/MySQLTestProject/src/battleship.py
 -- END DISKCACHE
 -- START DICTIONARY
-1
+2
 1=AddEmployee
+2=battleship
 -- END DICTIONARY
 -- START TREE 1
-10
+15
 add|1|AddEmployee!10@
 age|1|age!11@
+boa|1|board!19@
 cur|1|cursor!11@
 db|1|db!11@
 fet|1|FetchEmployee!10@
 fir|1|first!11@
+gue|2|guess_col!19@guess_row!19@
 inc|1|income!11@
 las|1|last!11@
+pri|1|print_board!18@
+ran|2|random_col!18@random_row!18@
 sex|1|sex!11@
+shi|2|ship_col!19@ship_row!19@
 tas|1|task1!11@
 -- END TREE
 -- START TREE 2
