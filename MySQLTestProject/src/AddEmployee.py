@@ -7,6 +7,16 @@ Created on Apr 15, 2015
 
 import MySQLdb
 
+def AddTable(tablename,field1,fieldtype):
+    sql= "CREATE TABLE `TestDB`.`%s` \
+    ( `%s` %s) COMMENT='';" % (tablename,field1,fieldtype)
+    try:
+        cursor.execute(sql)
+        db.commit()
+        return
+    except:
+        db.rollback()
+        return
 
 def AddEmployee(first,last,age,sex,income):
 # Prepare SQL query to INSERT a record into the database.
@@ -60,7 +70,7 @@ db = MySQLdb.connect("localhost","testuser","test123","TestDB" )
 # prepare a cursor object using cursor() method
 cursor = db.cursor()
 
-task1 = raw_input("(F)etch, (A)dd User")
+task1 = raw_input("(F)etch, (A)dd User (N)ew Table")
 if task1 == "F":
     FetchEmployee()
 elif task1 == "A":
@@ -73,6 +83,12 @@ elif task1 == "A":
     income = float(income)
 
     AddEmployee(first, last, age, sex, income)
+elif task1 == "N":
+    tablename = "TestTable1"
+    field1 = "newField"
+    fieldtype = 'varchar(255)'
+    
+    AddTable(tablename,field1,fieldtype)
 else:
     print("No Valid Command - Exiting")
     db.close() # disconnect from server
