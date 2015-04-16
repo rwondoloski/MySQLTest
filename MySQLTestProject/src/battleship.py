@@ -49,13 +49,13 @@ for turn in range(4):
         print_board(board)
     if turn ==3: print "Game Over!"
     
-    '''
-    Make multiple battleships: you'll need to be careful because you need to make sure that you don’t place battleships
-     on top of each other on the game board. You'll also want to make sure that you balance the size of the board with 
-     the number of ships so the game is still challenging and fun to play.
+'''
+Make multiple battleships: you will need to be careful because you need to make sure that you do not place battleships
+on top of each other on the game board. You will also want to make sure that you balance the size of the board with 
+the number of ships so the game is still challenging and fun to play.
 
 Make battleships of different sizes: this is trickier than it sounds. All the parts of the battleship need to be vertically 
-or horizontally touching and you’ll need to make sure you don’t accidentally place part of a ship off the side of the board.
+or horizontally touching and you will need to make sure you do not accidentally place part of a ship off the side of the board.
 
 Make your game a two-player game.
 
