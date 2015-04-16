@@ -14,9 +14,10 @@ def AddTable(tablename,field1,fieldtype):
         cursor.execute(sql)
         db.commit()
         return
-    except:
+    except Exception , error:
         db.rollback()
-        return
+	print "Failed to Execute: ", error.args
+	return
 
 def AddEmployee(first,last,age,sex,income):
 # Prepare SQL query to INSERT a record into the database.
@@ -31,9 +32,10 @@ def AddEmployee(first,last,age,sex,income):
         db.commit()
         return
     
-    except:
+    except Exception , error:
     # Rollback in case there is any error
         db.rollback()
+	print "Failed to Execute: ", error.args
         return
 
 def FetchEmployee():
@@ -70,7 +72,7 @@ db = MySQLdb.connect("localhost","testuser","test123","TestDB" )
 # prepare a cursor object using cursor() method
 cursor = db.cursor()
 
-task1 = raw_input("(F)etch, (A)dd User (N)ew Table")
+task1 = raw_input("(F)etch, (A)dd User (N)ew Table:  ")
 if task1 == "F":
     FetchEmployee()
 elif task1 == "A":
@@ -84,9 +86,9 @@ elif task1 == "A":
 
     AddEmployee(first, last, age, sex, income)
 elif task1 == "N":
-    tablename = "TestTable1"
-    field1 = "newField"
-    fieldtype = 'varchar(255)'
+    tablename = raw_input("TableName: ")
+    field1 = raw_input("new Field Name: ")
+    fieldtype = raw_input("varchar(255),int,float,datetime, or other valid type: ")
     
     AddTable(tablename,field1,fieldtype)
 else:
