@@ -43,34 +43,32 @@ except ImportError:
 Define variables
 
 '''
-SQLServer = "54.235.61.67"
+SQLServer = "localhost"
 SQLUser = "root"
 SQLPwd = "UQ732!"
 SQLDatabase = "ThingWorx"
 
-def on_SQLconnect():
-
-    # Open database connection
-    db = MySQLdb.connect(SQLServer,SQLUser,SQLPwd,SQLDatabase)
-    # prepare a cursor object using cursor() method
-    cursor = db.cursor()
 
 
 def on_connect(mqttc, obj, flags, rc):
     print("rc: "+str(rc))
 
 def on_message(mqttc, obj, msg):
-    
-    if msg.topic == "Thingworx/Temperature":
+    topics=msg.topic.split('/')    
+    if topics[0] == "ThingWorx" and topics[3] ==  "Temperature":
         print(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
         print
-        WriteTemp(msg.payload)
-        
-def WriteTemp(temperature):
-# Prepare SQL query to INSERT a record into the database.
-    sql = "INSERT INTO TEMPERATURE(TEMPERATURE) \
-       VALUES ('%d')" % (temperature)
-       
+        try:
+	    WriteTemp(msg.payload,topics[2],topics[1])
+        except:
+	    print "message writeTemp error: "
+ 
+def WriteTemp(temperature,msgtime,uid):
+    global db,cursor 
+    # Prepare SQL query to INSERT a record into the database.
+    sql = "INSERT INTO Temperature(Temperature,TimeStamp,clientID) \
+       VALUES ('%d','%s','%s')" % (float(temperature),msgtime,uid)
+    ##  insert into `ThingWorx`.`Temperature` ( `Temperature`) values ( '32.0')       
     try:
     # Execute the SQL command
         cursor.execute(sql)
@@ -85,7 +83,10 @@ def WriteTemp(temperature):
         return
 
 
-on_SQLconnect()
+# Open database connection
+db = MySQLdb.connect(SQLServer,SQLUser,SQLPwd,SQLDatabase)
+# prepare a cursor object using cursor() method
+cursor = db.cursor()
 
 mqttc = mqtt.Client()
 mqttc.on_message = on_message
