@@ -58,6 +58,9 @@ def on_message(mqttc, obj, msg):
     if topics[0] == "ThingWorx" and topics[3] ==  "Temperature":
         print(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
         print
+	print " 1. UID = ", topics[1]
+	print " 2. DateTime ", topics[2]
+
         try:
 	    WriteTemp(msg.payload,topics[2],topics[1])
         except:
@@ -67,8 +70,9 @@ def WriteTemp(temperature,msgtime,uid):
     global db,cursor 
     # Prepare SQL query to INSERT a record into the database.
     sql = "INSERT INTO Temperature(Temperature,TimeStamp,clientID) \
-       VALUES ('%d','%s','%s')" % (float(temperature),msgtime,uid)
+       VALUES ('%f','%s','%s')" % (float(temperature),msgtime,uid)
     ##  insert into `ThingWorx`.`Temperature` ( `Temperature`) values ( '32.0')       
+    print float(temperature)
     try:
     # Execute the SQL command
         cursor.execute(sql)
