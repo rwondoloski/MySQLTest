@@ -42,16 +42,16 @@ class SQLclass:
 			for n in range(1,len(lines)):
 				data = lines[n].split(',')
 				if len(data) > 2:   # verify that there is data in the line...
-                			data.append(ConnectionNumber)
-                			data.append(ConnectionTime)
-                			sql=self.WriteSQL(SQLTable,TableData,data)
+					data.append(ConnectionNumber)
+					data.append(ConnectionTime)
+					self.WriteSQL(SQLTable,TableData,data)
 
 	def WriteSQL(self,SQLTable,TableData,data):
 		''' Prepare SQL query to INSERT a record into the database.'''
 		count = 0
 		FieldList = "" # List of the fields in the table
-		DataList = ""  # Add Data[count-1] in a list for each data element
-		Length = len(TableData)
+
+
 		MaxIndex=self.GetIndexNumber(SQLTable)       # Get the current index Number
 		print "Current Index = ", MaxIndex[0]
 		NewIndex = MaxIndex[0] + 1
@@ -63,7 +63,7 @@ class SQLclass:
 			FieldList = FieldData[0]        # FieldData[0] is the field Name
 			TLtemp = FieldData[1]           # FieldData[1] is teh field type
 			
-               		if TLtemp[0:2] == 'in':                 # integer
+			if TLtemp[0:2] == 'in':                 # integer
 				try:
 					data[count]=int(data[count])    #convert data to integer
 				except:
@@ -79,17 +79,16 @@ class SQLclass:
 				sql = "UPDATE "+SQLTable+" SET "+FieldList+" = '%s' WHERE IndexNumber ='%i'" % (data[count],NewIndex)
 			self.ExecuteSQL(sql)
 			count += 1
- 
-	def ExecuteSQL(self,sql):
 
-	    try:
-	    	cursor.execute(sql)   # Execute the SQL command
-	    	self.datab.commit()           # Commit your changes in the database
-	    	return
-	    except Exception , error:  # Rollback in case there is any error
-        	self.datab.rollback()
-        	print "Failed to Execute: ", error.args
-        	return
+	def ExecuteSQL(self,sql):
+		try:
+			cursor.execute(sql)   # Execute the SQL command
+			self.datab.commit()           # Commit your changes in the database
+			return
+		except Exception , error:  # Rollback in case there is any error
+			self.datab.rollback()
+			print "Failed to Execute: ", error.args
+			return
 
 	def GetTableFields(self,SQLTable,SQLDatabase):
 		sql = "SHOW COLUMNS FROM "+ SQLTable + " FROM "+SQLDatabase
@@ -98,79 +97,73 @@ class SQLclass:
 		TableData = cursor.fetchall()
 		print TableData
 		return TableData
- 
+
 	def GetIndexNumber(self,SQLTable):
-	
-	    sql = "SELECT MAX(" + SQLTable+ ".IndexNumber) FROM "+SQLTable
-	    print sql
-	    self.ExecuteSQL(sql)
-	    MaxIndex = cursor.fetchone()
-	    return MaxIndex
+		sql = "SELECT MAX(" + SQLTable+ ".IndexNumber) FROM "+SQLTable
+		print sql
+		self.ExecuteSQL(sql)
+		MaxIndex = cursor.fetchone()
+		return MaxIndex
 
 class mysocket:
-
-    def __init__(self, sock=None):
-        if sock is None:
-            self.sock = socket.socket(
+	def __init__(self, sock=None):
+		if sock is None:
+			self.sock = socket.socket(
                 socket.AF_INET, socket.SOCK_STREAM)
-            
-        else:
-            self.sock = sock
-            
-    def setblock(self):
-    	self.sock.setblocking(0)
-    	
-    def connect(self, host, port):
-    	try:
-    		self.sock.connect((host, port))
-    	except:
-    		print "Not able to connect"
-    		so.close()
-    		sys.exit()
-   			
-    def sendmsg(self, msg):
-        totalsent = 0
-        while totalsent < len(msg):
-        	sel = select.select([],[self.sock],[],40) # sel[0] = write, 1= read
-        	if sel[1] != []:
-        		sent = self.sock.send(msg[totalsent:])
-        		if sent == 0:
-        			raise RuntimeError("socket connection broken")
-        		totalsent = totalsent + sent
-        	else:
-        		print sel
-        		so.close()
-        		print" No Data Sending....Closing connection"
-        		sys.exit()
-            
-    def close(self):
-    	self.sock.close()
+		else:
+			self.sock = sock
+			
+	def setblock(self):
+		self.sock.setblocking(0)
+	def connect(self, host, port):
+		try:
+			self.sock.connect((host, port))
+		except:
+			print "Not able to connect"
+			so.close()
+			sys.exit()
+	
+	def sendmsg(self, msg):
+		totalsent = 0
+		while totalsent < len(msg):
+			sel = select.select([],[self.sock],[],40) # sel[0] = write, 1= read
+			if sel[1] != []:
+				sent = self.sock.send(msg[totalsent:])
+				if sent == 0:
+					raise RuntimeError("socket connection broken")
+				totalsent = totalsent + sent
+			else:
+				print sel
+				so.close()
+				print" No Data Sending....Closing connection"
+				sys.exit()
 
-    def receivemsg(self,so,delimiter):
-        chunks = []
-        chunk=''
-        bytes_recd = 0
-          
-        while chunk.find(delimiter) == -1:  # Not contained in chunk
-        	sel = select.select([self.sock],[],[],40) # sel[0] = write, 1= read
-        	''' timer on select.select waits for at least 1 input, so putting in
-        	2 inputs is a bad idea!'''
-        	if sel[0] != []:
-        		chunk = self.sock.recv(1024)
-        		if chunk == '':
-    				raise RuntimeError("socket connection broken")
-    			chunks.append(chunk)        			
-    			bytes_recd = bytes_recd + len(chunk)
-    		else:
-    			print sel
-    			so.close()
-    			print" No Data Recevied....Closing connection"
-    			sys.exit()
-        			
-        return ''.join(chunks)
-        
-        
-        
+
+	def close(self):
+		self.sock.close()
+
+	def receivemsg(self,so,delimiter):
+		chunks = []
+		chunk=''
+		bytes_recd = 0
+
+		while chunk.find(delimiter) == -1:  # Not contained in chunk
+			sel = select.select([self.sock],[],[],40) # sel[0] = write, 1= read
+			# timer on select.select waits for at least 1 input, so putting in
+			#2 inputs is a bad idea!'''
+			if sel[0] != []:
+				chunk = self.sock.recv(1024)
+				if chunk == '':
+					raise RuntimeError("socket connection broken")
+				chunks.append(chunk)
+				bytes_recd = bytes_recd + len(chunk)
+			else:
+				print sel
+				so.close()
+				print" No Data Recevied....Closing connection"
+				sys.exit()
+		return ''.join(chunks)
+
 def loginCM():
 	
 	print "Sending P"
