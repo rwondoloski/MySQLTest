@@ -10,9 +10,12 @@ SQLPwd = "UbiQuai7"
 SQLDatabase = "IFS"
 SQLTableName = "CardMaster_CurrentData"
 
-#host = '66.76.142.175'
-host = 'localhost'
-port = 4660
+#host = '66.76.142.175' # This is Ted's
+#host = '166.149.101.208' # Lubbock
+host = '166.248.154.38' # Amarillo Customer
+port = 8001
+#host = 'localhost'
+#port = 4660 # This is Ted's
 delimiter0 = '\x0d\x0a\x3a'   
 
 class SQLclass:
@@ -57,29 +60,48 @@ class SQLclass:
 		NewIndex = MaxIndex[0] + 1
 		data.append(NewIndex)           # need to make an incrimetal value for each data option
 		sql = "INSERT INTO "+SQLTable+"(IndexNumber) VALUES ('%i')" % NewIndex # Create new database entry
-		self.ExecuteSQL(sql)
-		
-		for FieldData in TableData:
-			FieldList = FieldData[0]        # FieldData[0] is the field Name
-			TLtemp = FieldData[1]           # FieldData[1] is teh field type
+		self.ExecNoCommit(sql)
+		try:	
+			for FieldData in TableData:
+				FieldList = FieldData[0]        # FieldData[0] is the field Name
+				TLtemp = FieldData[1]           # FieldData[1] is teh field type
 			
-               		if TLtemp[0:2] == 'in':                 # integer
-				try:
-					data[count]=int(data[count])    #convert data to integer
-				except:
-					data[count]=0
-				sql = "UPDATE "+SQLTable+" SET "+FieldList+" = %i WHERE IndexNumber =%i" % (data[count],NewIndex)
-			elif TLtemp[0:2] == 'de':               # decimal
-				try:
-					data[count]=float(data[count])  #convert to float
-				except:
-					data[count]=0.0
-				sql = "UPDATE "+SQLTable+" SET "+FieldList+" = '%d' WHERE IndexNumber ='%i'" % (data[count],NewIndex)
-			else:                                   # String for all others
-				sql = "UPDATE "+SQLTable+" SET "+FieldList+" = '%s' WHERE IndexNumber ='%i'" % (data[count],NewIndex)
-			self.ExecuteSQL(sql)
-			count += 1
- 
+               			if TLtemp[0:2] == 'in':                 # integer
+					try:
+						data[count]=int(data[count])    #convert data to integer
+					except:
+						data[count]=0
+					sql = "UPDATE "+SQLTable+" SET "+FieldList+" = %i WHERE IndexNumber =%i" % (data[count],NewIndex)
+				elif TLtemp[0:2] == 'de':               # decimal
+					try:
+						data[count]=float(data[count])  #convert to float
+					except:
+						data[count]=0.0
+					sql = "UPDATE "+SQLTable+" SET "+FieldList+" = '%d' WHERE IndexNumber ='%i'" % (data[count],NewIndex)
+				elif FieldList == 'Date': # must reformat date from MM/DD/YY to YY/MM/DD 
+					date1 = data[count].split('/')	
+					data[count] = date1[2] + '/' + date1[0] + '/' + date1[1]
+					sql = "UPDATE "+SQLTable+" SET "+FieldList+" = '%s' WHERE IndexNumber ='%i'" % (data[count],NewIndex)
+				else:                                   # String for all others
+					sql = "UPDATE "+SQLTable+" SET "+FieldList+" = '%s' WHERE IndexNumber ='%i'" % (data[count],NewIndex)
+				self.ExecNoCommit(sql)
+				count += 1
+		except:
+			#Need to Rollback and not commit.  Rollback is done in ExecNoCommit Exception.... 
+			print "Error in adding this line of data--erasing this line"
+			# No further action required here rollback occured.  If this causes an erorr we need to skip...
+
+		self.datab.commit() # Commit line once all is completed 
+
+ 	def ExecNoCommit(self,sql):
+	    try:
+		cursor.execute(sql)
+		return
+	    except Exception , error:
+		self.datab.rollback()
+		print "Failed to Execute: Duplicate", error.args
+		return
+
 	def ExecuteSQL(self,sql):
 
 	    try:
@@ -93,16 +115,13 @@ class SQLclass:
 
 	def GetTableFields(self,SQLTable,SQLDatabase):
 		sql = "SHOW COLUMNS FROM "+ SQLTable + " FROM "+SQLDatabase
-		print sql
 		self.ExecuteSQL(sql)
 		TableData = cursor.fetchall()
-		print TableData
 		return TableData
  
 	def GetIndexNumber(self,SQLTable):
 	
 	    sql = "SELECT MAX(" + SQLTable+ ".IndexNumber) FROM "+SQLTable
-	    print sql
 	    self.ExecuteSQL(sql)
 	    MaxIndex = cursor.fetchone()
 	    return MaxIndex
@@ -193,6 +212,22 @@ def WriteFile(data):
 		
 		
 	
+import argparse
+import sys
+
+try:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("IP ", help=" Input is the IP address in quotes, and the port number",type=str)
+    parser.add_argument("port", help=" Input is the IP address in quotes, and the port number",type=int)
+    args = parser.parse_args()
+    print sys.argv
+    host= sys.argv[1]
+    port= sys.argv[2]
+
+except:
+    e = sys.exc_info()[0]
+    print e
+    print "Using default host and port" 
 	
 ''' CONNECT Socket ******************'''
 so=mysocket()
@@ -207,7 +242,6 @@ CurrentData= so.receivemsg(so,delimiter0)
 print CurrentData
 
 '''DataBase Setup *************'''
-print dir(SQLclass)
 db = SQLclass(SQLServer,SQLUser,SQLPwd,SQLDatabase)
 print "Connecting to Database : ", SQLDatabase, " on Server : ", SQLServer
 print "User: ",SQLUser
